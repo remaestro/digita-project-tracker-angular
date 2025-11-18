@@ -1,0 +1,64 @@
+.sidenav-container {
+  height: 100vh;
+}
+
+.sidenav {
+  width: 280px;
+  background: white;
+  
+  &.mat-drawer {
+    border-right: 1px solid #e5e7eb;
+  }
+
+  .dark & {
+    background: #1f2937;
+    
+    &.mat-drawer {
+      border-right: 1px solid #374151;
+    }
+  }
+}
+
+.mat-toolbar {
+  height: 64px;
+  padding: 0 16px;
+}
+
+// Active navigation item styling
+.active-nav-item {
+  background-color: #eff6ff !important;
+  color: #2563eb !important;
+  
+  .mat-icon {
+    color: #2563eb !important;
+  }
+
+  .dark & {
+    background-color: #1e3a8a !important;
+    color: #dbeafe !important;
+    
+    .mat-icon {
+      color: #dbeafe !important;
+    }
+  }
+}
+
+// Navigation list styling
+.mat-mdc-list-item {
+  --mdc-list-list-item-container-height: 48px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  
+  &:hover {
+    background-color: #f9fafb;
+    
+    .dark & {
+      background-color: #374151;
+    }
+  }
+}
+
+// User section positioning
+.mat-sidenav .mt-auto {
+  margin-top: auto;
+}

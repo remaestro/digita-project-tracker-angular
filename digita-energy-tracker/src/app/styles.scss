@@ -1,0 +1,75 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Gantt chart custom styles */
+.gantt_task_line.gantt_project {
+    background-color: #5c6bc0; /* Indigo for projects/phases */
+    border: 1px solid #3f51b5;
+    height: 12px;
+    margin-top: 6px;
+}
+
+.gantt_task_line.gantt_project .gantt_task_progress {
+    background-color: #9fa8da; /* Lighter indigo for progress on projects */
+}
+
+.gantt_task_line {
+    background-color: #29b6f6; /* Light blue for regular tasks */
+    border: 1px solid #03a9f4;
+    height: 12px;
+    margin-top: 6px;
+}
+
+.gantt_task_progress {
+    background-color: #ff4081; /* Pink for progress */
+    opacity: 0.8;
+}
+
+.gantt_task_line.gantt_milestone {
+    background-color: #9c27b0; /* Purple for milestones */
+    border: none;
+    width: 14px !important;
+    height: 14px !important;
+    transform: rotate(45deg);
+    margin-top: 2px;
+}
+
+.gantt_milestone {
+    background-color: #9c27b0; /* Purple for milestones */
+    border: none;
+    transform: rotate(45deg) scale(0.8);
+    margin-top: 4px;
+}
+
+.gantt_grid_scale .gantt_grid_head_cell, .gantt_scale_cell {
+    font-weight: 600;
+    color: #374151;
+    background-color: #f9fafb;
+}
+
+.gantt_task .gantt_task_content {
+    display: none; /* Hide text inside bars */
+}
+
+.gantt_grid_data .gantt_row.odd:not(.gantt_selected) {
+    background-color: #f9fafb;
+}
+
+.gantt_grid_data .gantt_row:not(.gantt_selected) {
+    background-color: #ffffff;
+}
+
+.gantt_tree_icon.gantt_file, .gantt_tree_icon.gantt_folder_open, .gantt_tree_icon.gantt_folder_closed {
+    display: none; /* Hide folder/file icons */
+}
+
+.gantt_row, .gantt_task_row {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.gantt_grid_data .gantt_cell {
+    border-right: 1px solid #e5e7eb;
+}
+
+.gantt_task_cell {
+    border-right: 1px solid #e5e7eb;
+}

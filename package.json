@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@angular/cdk": "^19.2.19",
+    "@angular/material": "^19.2.19",
+    "@ngrx/effects": "^18.1.1",
+    "@ngrx/entity": "^18.1.1",
+    "@ngrx/store": "^18.1.1",
+    "@ngrx/store-devtools": "^18.1.1",
+    "dhtmlx-gantt": "^9.1.0"
+  }
+}
