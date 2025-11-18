@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { of } from 'rxjs';
+import { of, Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators';
 import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -301,23 +301,27 @@ export class RisksComponent implements OnInit {
       criticality: formData.probability * formData.impact
     };
 
-    setTimeout(() => {
-      if (this.editingRisk) {
-        const index = this.risks.findIndex(r => r.id === this.editingRisk!.id);
-        this.risks[index] = { ...this.editingRisk, ...riskData } as Risk;
-      } else {
-        const newRisk: Risk = {
-          id: Date.now(),
-          ...riskData,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        } as Risk;
-        this.risks.push(newRisk);
+    let apiCall: Observable<any>;
+
+    if (this.editingRisk) {
+      const updatePayload = { ...riskData, id: this.editingRisk.id };
+      apiCall = this.apiService.updateRisk(this.editingRisk.id, updatePayload);
+    } else {
+      apiCall = this.apiService.createRisk(riskData);
+    }
+
+    apiCall.subscribe({
+      next: () => {
+        this.isSaving = false;
+        this.closeRiskDialog();
+        this.loadRisks(); // Assurez-vous que cette méthode charge les vraies données
+      },
+      error: (error) => {
+        console.error('Error saving risk:', error);
+        this.isSaving = false;
+        // Optionnel: afficher un message d'erreur à l'utilisateur
       }
-      this.isSaving = false;
-      this.closeRiskDialog();
-      this.loadMockRisks();
-    }, 1000);
+    });
   }
 
   viewRisk(risk: Risk) {

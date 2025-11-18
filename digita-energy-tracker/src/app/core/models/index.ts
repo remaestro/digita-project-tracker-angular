@@ -128,6 +128,7 @@ export interface TaskFilters {
   phase?: string;
   status?: string;
   responsible?: string;
+  search?: string;
   dateRange?: {
     start: string;
     end: string;

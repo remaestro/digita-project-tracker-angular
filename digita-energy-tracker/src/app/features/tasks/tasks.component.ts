@@ -765,7 +765,7 @@ export class TasksComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadMockTasks();
+    this.loadTasks();
     this.setupFilterSubscriptions();
   }
 
@@ -811,170 +811,30 @@ export class TasksComponent implements OnInit {
       distinctUntilChanged()
     ).subscribe(() => {
       this.currentPage = 1;
-      this.applyFilters();
+      this.loadTasks();
     });
   }
 
-  private loadMockTasks() {
+  private loadTasks() {
     this.isLoading = true;
-    
-    // Simulate loading delay
-    setTimeout(() => {
-      this.tasks = this.generateMockTasks();
-      this.totalCount = this.tasks.length;
-      this.calculateTotalPages();
-      this.applyFilters();
-      this.isLoading = false;
-    }, 1000);
-  }
+    const filters = this.filterForm.value;
+    const sort = this.currentSort;
 
-  private generateMockTasks(): Task[] {
-    const now = new Date().toISOString();
-    
-    return [
-      {
-        id: 1,
-        wbs: '1.1.1',
-        workstream: 'Énergie Renouvelable',
-        phase: 'Design',
-        activity: 'Conception des panneaux solaires',
-        asset: 'Panneau Solaire',
-        location: 'Site A',
-        quantity: 100,
-        unit: 'pièces',
-        weight: 2000,
-        startPlanned: '2024-01-15',
-        endPlanned: '2024-03-15',
-        startActual: '2024-01-15',
-        endActual: '',
-        progress: 75,
-        status: 'En cours',
-        responsible: 'Jean Dupont',
-        dependencies: '',
-        comments: 'Projet prioritaire',
-        createdAt: now,
-        updatedAt: now
-      },
-      {
-        id: 2,
-        wbs: '1.2.1',
-        workstream: 'Stockage',
-        phase: 'Procurement',
-        activity: 'Achat des batteries lithium',
-        asset: 'Batterie',
-        location: 'Site B',
-        quantity: 50,
-        unit: 'unités',
-        weight: 1500,
-        startPlanned: '2024-02-01',
-        endPlanned: '2024-04-01',
-        startActual: '',
-        endActual: '',
-        progress: 25,
-        status: 'En cours',
-        responsible: 'Marie Martin',
-        dependencies: '1.1.1',
-        comments: '',
-        createdAt: now,
-        updatedAt: now
-      },
-      {
-        id: 3,
-        wbs: '2.1.1',
-        workstream: 'Distribution',
-        phase: 'Installation',
-        activity: 'Installation des transformateurs',
-        asset: 'Transformateur',
-        location: 'Site C',
-        quantity: 10,
-        unit: 'unités',
-        weight: 5000,
-        startPlanned: '2024-03-01',
-        endPlanned: '2024-05-01',
-        startActual: '',
-        endActual: '',
-        progress: 0,
-        status: 'Non démarré',
-        responsible: 'Pierre Durand',
-        dependencies: '1.2.1',
-        comments: 'Attente des permis',
-        createdAt: now,
-        updatedAt: now
-      },
-      {
-        id: 4,
-        wbs: '3.1.1',
-        workstream: 'Smart Grid',
-        phase: 'Testing',
-        activity: 'Test des capteurs IoT',
-        asset: 'Capteur IoT',
-        location: 'Site D',
-        quantity: 200,
-        unit: 'pièces',
-        weight: 500,
-        startPlanned: '2024-04-01',
-        endPlanned: '2024-05-15',
-        startActual: '2024-04-01',
-        endActual: '2024-05-10',
-        progress: 100,
-        status: 'Terminé',
-        responsible: 'Sophie Leroy',
-        dependencies: '',
-        comments: 'Tests réussis',
-        createdAt: now,
-        updatedAt: now
-      }
-    ];
+    this.apiService.getTasks(filters, sort, this.currentPage, this.pageSize)
+      .subscribe(response => {
+        this.tasks = response.data;
+        this.totalCount = response.totalCount;
+        this.totalPages = response.totalPages;
+        this.isLoading = false;
+      }, error => {
+        console.error('Error loading tasks:', error);
+        this.isLoading = false;
+        // Gérer l'affichage d'une erreur à l'utilisateur
+      });
   }
 
   private applyFilters() {
-    const filters = this.filterForm.value;
-    let filtered = [...this.tasks];
-
-    // Apply workstream filter
-    if (filters.workstream) {
-      filtered = filtered.filter(task => task.workstream === filters.workstream);
-    }
-
-    // Apply phase filter
-    if (filters.phase) {
-      filtered = filtered.filter(task => task.phase === filters.phase);
-    }
-
-    // Apply status filter
-    if (filters.status) {
-      filtered = filtered.filter(task => task.status === filters.status);
-    }
-
-    // Apply search filter
-    if (filters.search) {
-      const searchTerm = filters.search.toLowerCase();
-      filtered = filtered.filter(task => 
-        task.activity.toLowerCase().includes(searchTerm) ||
-        task.responsible.toLowerCase().includes(searchTerm) ||
-        task.wbs.toLowerCase().includes(searchTerm)
-      );
-    }
-
-    this.totalCount = filtered.length;
-    this.calculateTotalPages();
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      const aValue = a[this.currentSort.field as keyof Task] || '';
-      const bValue = b[this.currentSort.field as keyof Task] || '';
-      
-      if (this.currentSort.direction === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-
-    // Apply pagination
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.tasks = filtered.slice(startIndex, endIndex);
+    this.loadTasks();
   }
 
   private calculateTotalPages() {
@@ -1044,29 +904,27 @@ export class TasksComponent implements OnInit {
     this.isSaving = true;
     const taskData = this.taskForm.value;
 
-    // Simulate API call
-    setTimeout(() => {
-      if (this.editingTask) {
-        // Update existing task
-        const index = this.tasks.findIndex(t => t.id === this.editingTask!.id);
-        if (index !== -1) {
-          this.tasks[index] = { ...this.editingTask, ...taskData };
-        }
-      } else {
-        // Create new task
-        const newTask: Task = {
-          id: Date.now(),
-          ...taskData,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-        this.tasks.push(newTask);
-      }
+    let apiCall: Observable<any>;
 
-      this.isSaving = false;
-      this.closeTaskDialog();
-      this.loadMockTasks(); // Reload to apply filters
-    }, 1000);
+    if (this.editingTask) {
+      const updatePayload = { ...taskData, id: this.editingTask.id };
+      apiCall = this.apiService.updateTask(this.editingTask.id, updatePayload);
+    } else {
+      apiCall = this.apiService.createTask(taskData);
+    }
+
+    apiCall.subscribe({
+      next: () => {
+        this.isSaving = false;
+        this.closeTaskDialog();
+        this.loadTasks(); // Recharger les données
+      },
+      error: (err) => {
+        this.isSaving = false;
+        console.error('Error saving task', err);
+        // Afficher une notification d'erreur à l'utilisateur
+      }
+    });
   }
 
   // View Task Methods
@@ -1096,13 +954,18 @@ export class TasksComponent implements OnInit {
 
     this.isDeleting = true;
 
-    // Simulate API call
-    setTimeout(() => {
-      this.tasks = this.tasks.filter(t => t.id !== this.taskToDelete!.id);
-      this.isDeleting = false;
-      this.closeDeleteDialog();
-      this.loadMockTasks(); // Reload to apply filters
-    }, 1000);
+    this.apiService.deleteTask(this.taskToDelete.id).subscribe({
+      next: () => {
+        this.isDeleting = false;
+        this.closeDeleteDialog();
+        this.loadTasks(); // Recharger les données
+      },
+      error: (err) => {
+        this.isDeleting = false;
+        console.error('Error deleting task', err);
+        // Afficher une notification d'erreur à l'utilisateur
+      }
+    });
   }
 
   editTask(task: Task) {

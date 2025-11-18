@@ -816,29 +816,27 @@ export class MilestonesComponent implements OnInit {
       linkedTaskIds
     };
 
-    // Simulate API call
-    setTimeout(() => {
-      if (this.editingMilestone) {
-        // Update existing milestone
-        const index = this.milestones.findIndex(m => m.id === this.editingMilestone!.id);
-        if (index !== -1) {
-          this.milestones[index] = { ...this.editingMilestone, ...processedData };
-        }
-      } else {
-        // Create new milestone
-        const newMilestone: Milestone = {
-          id: Date.now(),
-          ...processedData,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-        this.milestones.push(newMilestone);
-      }
+    let apiCall: Observable<any>;
 
-      this.isSaving = false;
-      this.closeMilestoneDialog();
-      this.loadMockMilestones(); // Reload to apply filters
-    }, 1000);
+    if (this.editingMilestone) {
+      const updatePayload = { ...processedData, id: this.editingMilestone.id };
+      apiCall = this.apiService.updateMilestone(this.editingMilestone.id, updatePayload);
+    } else {
+      apiCall = this.apiService.createMilestone(processedData);
+    }
+
+    apiCall.subscribe({
+      next: () => {
+        this.isSaving = false;
+        this.closeMilestoneDialog();
+        this.loadMilestones(); // Assurez-vous que cette méthode charge les vraies données
+      },
+      error: (error) => {
+        console.error('Error saving milestone:', error);
+        this.isSaving = false;
+        // Optionnel: afficher un message d'erreur à l'utilisateur
+      }
+    });
   }
 
   // View Milestone Methods
