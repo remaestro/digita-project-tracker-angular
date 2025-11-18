@@ -829,7 +829,7 @@ export class MilestonesComponent implements OnInit {
       next: () => {
         this.isSaving = false;
         this.closeMilestoneDialog();
-        this.loadMilestones(); // Assurez-vous que cette méthode charge les vraies données
+        this.loadMockMilestones(); // Correction: utiliser loadMockMilestones au lieu de loadMilestones
       },
       error: (error) => {
         console.error('Error saving milestone:', error);

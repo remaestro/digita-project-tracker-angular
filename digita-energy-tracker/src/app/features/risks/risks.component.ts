@@ -314,7 +314,7 @@ export class RisksComponent implements OnInit {
       next: () => {
         this.isSaving = false;
         this.closeRiskDialog();
-        this.loadRisks(); // Assurez-vous que cette méthode charge les vraies données
+        this.loadMockRisks(); // Correction: utiliser loadMockRisks au lieu de loadRisks
       },
       error: (error) => {
         console.error('Error saving risk:', error);
