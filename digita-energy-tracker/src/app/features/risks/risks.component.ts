@@ -137,29 +137,132 @@ import { Risk, SortOptions } from '../../core/models';
               <h3 class="text-2xl font-bold">{{ editingRisk ? 'Modifier le risque' : 'Nouveau risque' }}</h3>
             </div>
             <div class="p-6 space-y-4">
-              <input formControlName="title" placeholder="Titre du risque" class="w-full px-3 py-2 border rounded-lg">
-              <textarea formControlName="mitigationPlan" placeholder="Plan d'atténuation" class="w-full px-3 py-2 border rounded-lg"></textarea>
+              <!-- Titre du risque -->
+              <div>
+                <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+                  Titre du risque *
+                </label>
+                <input 
+                  id="title"
+                  formControlName="title" 
+                  placeholder="ex: Retard de livraison des équipements" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  [class.border-red-500]="riskForm.get('title')?.invalid && riskForm.get('title')?.touched"
+                >
+                <p *ngIf="riskForm.get('title')?.invalid && riskForm.get('title')?.touched" 
+                   class="mt-1 text-sm text-red-600">
+                  Le titre est requis
+                </p>
+              </div>
+
+              <!-- Plan d'atténuation -->
+              <div>
+                <label for="mitigationPlan" class="block text-sm font-medium text-gray-700 mb-2">
+                  Plan d'atténuation *
+                </label>
+                <textarea 
+                  id="mitigationPlan"
+                  formControlName="mitigationPlan" 
+                  placeholder="Décrivez les actions pour atténuer ce risque..." 
+                  rows="3"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  [class.border-red-500]="riskForm.get('mitigationPlan')?.invalid && riskForm.get('mitigationPlan')?.touched"
+                ></textarea>
+                <p *ngIf="riskForm.get('mitigationPlan')?.invalid && riskForm.get('mitigationPlan')?.touched" 
+                   class="mt-1 text-sm text-red-600">
+                  Le plan d'atténuation est requis
+                </p>
+              </div>
+
               <div class="grid grid-cols-2 gap-4">
-                <select formControlName="workstream" class="w-full px-3 py-2 border rounded-lg">
-                  <option *ngFor="let ws of workstreams" [value]="ws">{{ ws }}</option>
-                </select>
-                <select formControlName="owner" class="w-full px-3 py-2 border rounded-lg">
-                  <option *ngFor="let o of owners" [value]="o">{{ o }}</option>
-                </select>
-                <select formControlName="probability" class="w-full px-3 py-2 border rounded-lg">
-                  <option *ngFor="let p of [1,2,3,4,5]" [value]="p">{{ getProbabilityText(p) }}</option>
-                </select>
-                <select formControlName="impact" class="w-full px-3 py-2 border rounded-lg">
-                  <option *ngFor="let i of [1,2,3,4,5]" [value]="i">{{ getImpactText(i) }}</option>
-                </select>
-                <select formControlName="status" class="w-full px-3 py-2 border rounded-lg">
-                  <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
-                </select>
+                <!-- Lot de travaux -->
+                <div>
+                  <label for="workstream" class="block text-sm font-medium text-gray-700 mb-2">
+                    Lot de travaux *
+                  </label>
+                  <select 
+                    id="workstream"
+                    formControlName="workstream" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    [class.border-red-500]="riskForm.get('workstream')?.invalid && riskForm.get('workstream')?.touched"
+                  >
+                    <option value="">Sélectionner un lot</option>
+                    <option *ngFor="let ws of workstreams" [value]="ws">{{ ws }}</option>
+                  </select>
+                  <p *ngIf="riskForm.get('workstream')?.invalid && riskForm.get('workstream')?.touched" 
+                     class="mt-1 text-sm text-red-600">
+                    Le lot de travaux est requis
+                  </p>
+                </div>
+
+                <!-- Responsable -->
+                <div>
+                  <label for="owner" class="block text-sm font-medium text-gray-700 mb-2">
+                    Responsable *
+                  </label>
+                  <select 
+                    id="owner"
+                    formControlName="owner" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    [class.border-red-500]="riskForm.get('owner')?.invalid && riskForm.get('owner')?.touched"
+                  >
+                    <option value="">Sélectionner un responsable</option>
+                    <option *ngFor="let o of owners" [value]="o">{{ o }}</option>
+                  </select>
+                  <p *ngIf="riskForm.get('owner')?.invalid && riskForm.get('owner')?.touched" 
+                     class="mt-1 text-sm text-red-600">
+                    Le responsable est requis
+                  </p>
+                </div>
+
+                <!-- Probabilité -->
+                <div>
+                  <label for="probability" class="block text-sm font-medium text-gray-700 mb-2">
+                    Probabilité *
+                  </label>
+                  <select 
+                    id="probability"
+                    formControlName="probability" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option *ngFor="let p of [1,2,3,4,5]" [value]="p">{{ getProbabilityText(p) }}</option>
+                  </select>
+                </div>
+
+                <!-- Impact -->
+                <div>
+                  <label for="impact" class="block text-sm font-medium text-gray-700 mb-2">
+                    Impact *
+                  </label>
+                  <select 
+                    id="impact"
+                    formControlName="impact" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option *ngFor="let i of [1,2,3,4,5]" [value]="i">{{ getImpactText(i) }}</option>
+                  </select>
+                </div>
+
+                <!-- Statut -->
+                <div class="col-span-2">
+                  <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+                    Statut *
+                  </label>
+                  <select 
+                    id="status"
+                    formControlName="status" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+                  </select>
+                </div>
               </div>
             </div>
             <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-2">
-              <button type="button" (click)="closeRiskDialog()" class="px-4 py-2 rounded-lg border">Annuler</button>
-              <button type="submit" [disabled]="riskForm.invalid || isSaving" class="px-4 py-2 rounded-lg bg-blue-600 text-white disabled:bg-blue-300">
+              <button type="button" (click)="closeRiskDialog()" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">
+                Annuler
+              </button>
+              <button type="submit" [disabled]="riskForm.invalid || isSaving" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed">
                 <span *ngIf="!isSaving">Enregistrer</span>
                 <span *ngIf="isSaving">Enregistrement...</span>
               </button>
@@ -223,7 +326,7 @@ export class RisksComponent implements OnInit {
 
   ngOnInit() {
     this.checkPermissions();
-    this.loadMockRisks();
+    this.loadRisks(); // ✅ Utiliser la vraie API
     this.filterForm.valueChanges.pipe(
       startWith(this.filterForm.value),
       debounceTime(300),
@@ -236,7 +339,24 @@ export class RisksComponent implements OnInit {
     this.canEditRisks = perms.canEditAllTasks; // Reuse permission for now
   }
 
-  loadMockRisks() {
+  private loadRisks() {
+    this.isLoading = true;
+
+    this.apiService.getRisks().subscribe({
+      next: (response) => {
+        this.risks = response.data; // ✅ Extraire les données de response.data
+        this.totalCount = response.data.length;
+        this.applyFiltersAndSort();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading risks:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private loadMockRisks() {
     this.isLoading = true;
     setTimeout(() => {
       const mockRisks: Risk[] = [
@@ -314,12 +434,11 @@ export class RisksComponent implements OnInit {
       next: () => {
         this.isSaving = false;
         this.closeRiskDialog();
-        this.loadMockRisks(); // Correction: utiliser loadMockRisks au lieu de loadRisks
+        this.loadRisks(); // ✅ Recharger depuis l'API après sauvegarde
       },
       error: (error) => {
         console.error('Error saving risk:', error);
         this.isSaving = false;
-        // Optionnel: afficher un message d'erreur à l'utilisateur
       }
     });
   }
@@ -335,10 +454,22 @@ export class RisksComponent implements OnInit {
   }
 
   deleteRisk(risk: Risk) {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer le risque "${risk.title}"?`)) {
-      this.risks = this.risks.filter(r => r.id !== risk.id);
-      this.applyFiltersAndSort();
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer le risque "${risk.title}"?`)) {
+      return;
     }
+
+    this.isLoading = true;
+
+    this.apiService.deleteRisk(risk.id).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.loadRisks(); // ✅ Recharger depuis l'API après suppression
+      },
+      error: (error) => {
+        console.error('Error deleting risk:', error);
+        this.isLoading = false;
+      }
+    });
   }
 
   exportToExcel() {

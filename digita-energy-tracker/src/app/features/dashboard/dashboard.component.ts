@@ -18,288 +18,151 @@ import { ProjectStats, Task, Milestone, Risk } from '../../core/models';
   ],
   template: `
     <div class="p-6 space-y-6">
-      <!-- Header -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-          Tableau de bord
-        </h1>
-        <p class="text-gray-600 dark:text-gray-400 mt-2">
-          Vue d'ensemble de votre projet BRT
-        </p>
+      <div *ngIf="isLoading" class="flex items-center justify-center py-20">
+        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
 
-      <!-- Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Tasks Card -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Tâches
-              </p>
-              <p class="text-3xl font-bold text-gray-900 dark:text-white">
-                {{ stats?.totalTasks || 0 }}
-              </p>
-              <p class="text-sm text-green-600 mt-1">
-                {{ stats?.completedTasks || 0 }} terminées
-              </p>
-            </div>
-            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <mat-icon class="text-blue-600">task</mat-icon>
-            </div>
-          </div>
+      <div *ngIf="!isLoading">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-900">Tableau de bord</h1>
+          <p class="text-gray-600 mt-2">Vue d'ensemble de votre projet BRT</p>
         </div>
 
-        <!-- Milestones Card -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Jalons
-              </p>
-              <p class="text-3xl font-bold text-gray-900 dark:text-white">
-                {{ stats?.totalMilestones || 0 }}
-              </p>
-              <p class="text-sm text-green-600 mt-1">
-                {{ stats?.achievedMilestones || 0 }} atteints
-              </p>
-            </div>
-            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <mat-icon class="text-green-600">flag</mat-icon>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-600">Tâches</p>
+                <p class="text-3xl font-bold text-gray-900">{{ stats.totalTasks }}</p>
+                <p class="text-sm text-green-600 mt-1">{{ stats.completedTasks }} terminées</p>
+              </div>
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <mat-icon class="text-blue-600">task</mat-icon>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Risks Card -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Risques
-              </p>
-              <p class="text-3xl font-bold text-gray-900 dark:text-white">
-                {{ stats?.totalRisks || 0 }}
-              </p>
-              <p class="text-sm text-red-600 mt-1">
-                {{ stats?.criticalRisks || 0 }} critiques
-              </p>
-            </div>
-            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-              <mat-icon class="text-red-600">warning</mat-icon>
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-600">Jalons</p>
+                <p class="text-3xl font-bold text-gray-900">{{ stats.totalMilestones }}</p>
+                <p class="text-sm text-green-600 mt-1">{{ stats.achievedMilestones }} atteints</p>
+              </div>
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <mat-icon class="text-green-600">flag</mat-icon>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Progress Card -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Progression
-              </p>
-              <p class="text-3xl font-bold text-gray-900 dark:text-white">
-                {{ (stats?.averageProgress || 0) | number:'1.0-1' }}%
-              </p>
-              <div class="mt-2">
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                    [style.width.%]="stats?.averageProgress || 0">
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-600">Risques</p>
+                <p class="text-3xl font-bold text-gray-900">{{ stats.totalRisks }}</p>
+                <p class="text-sm text-red-600 mt-1">{{ stats.criticalRisks }} critiques</p>
+              </div>
+              <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                <mat-icon class="text-red-600">warning</mat-icon>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+              <div class="w-full">
+                <p class="text-sm font-medium text-gray-600">Progression</p>
+                <p class="text-3xl font-bold text-gray-900">{{ stats.averageProgress }}%</p>
+                <div class="mt-3">
+                  <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="h-2.5 rounded-full bg-blue-600 transition-all" [style.width.%]="stats.averageProgress"></div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <mat-icon class="text-purple-600">trending_up</mat-icon>
-            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Charts and Details Row -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Recent Tasks -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              Tâches récentes
-            </h3>
-            <button 
-              routerLink="/tasks"
-              class="text-blue-600 hover:text-blue-700 text-sm font-medium hover:underline transition-colors duration-200"
-            >
-              Voir tout
-            </button>
-          </div>
-          
-          <div class="space-y-3">
-            <div *ngFor="let task of recentTasks" class="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-b-0">
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
-                  {{ task.activity }}
-                </p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">
-                  {{ task.workstream }} • {{ task.responsible }}
-                </p>
-              </div>
-              <div class="flex items-center space-x-2">
-                <div class="w-2 h-2 rounded-full" 
-                     [ngClass]="{
-                       'bg-green-500': task.progress >= 100,
-                       'bg-yellow-500': task.progress >= 50 && task.progress < 100,
-                       'bg-red-500': task.progress < 50
-                     }">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold mb-4">Tâches récentes</h3>
+            <div class="space-y-3">
+              <div *ngFor="let task of recentTasks" class="flex items-center justify-between py-3 border-b last:border-b-0">
+                <div class="flex-1">
+                  <p class="text-sm font-medium">{{ task.activity }}</p>
+                  <p class="text-xs text-gray-500">{{ task.workstream }}</p>
                 </div>
-                <span class="text-xs text-gray-500 dark:text-gray-400">
-                  {{ task.progress }}%
-                </span>
+                <span class="text-xs">{{ task.progress }}%</span>
+              </div>
+              <div *ngIf="recentTasks.length === 0" class="text-center py-8 text-gray-500">
+                <p>Aucune tâche récente</p>
               </div>
             </div>
-            
-            <div *ngIf="recentTasks.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
-              <mat-icon class="text-gray-400 text-4xl mb-2">task_alt</mat-icon>
-              <p>Aucune tâche récente</p>
+          </div>
+
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold mb-4">Prochains jalons</h3>
+            <div class="space-y-3">
+              <div *ngFor="let milestone of upcomingMilestones" class="flex items-center justify-between py-3 border-b last:border-b-0">
+                <div class="flex-1">
+                  <p class="text-sm font-medium">{{ milestone.title }}</p>
+                  <p class="text-xs text-gray-500">{{ milestone.datePlanned | date:'dd/MM/yyyy' }}</p>
+                </div>
+              </div>
+              <div *ngIf="upcomingMilestones.length === 0" class="text-center py-8 text-gray-500">
+                <p>Aucun jalon à venir</p>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Upcoming Milestones -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              Prochains jalons
-            </h3>
-            <button 
-              routerLink="/milestones"
-              class="text-blue-600 hover:text-blue-700 text-sm font-medium hover:underline transition-colors duration-200"
-            >
-              Voir tout
+          <h3 class="text-lg font-semibold mb-4">Actions rapides</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <button routerLink="/tasks" class="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50">
+              <mat-icon class="text-blue-600 text-2xl mb-2">add_task</mat-icon>
+              <span class="text-sm">Nouvelle tâche</span>
+            </button>
+            <button routerLink="/milestones" class="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50">
+              <mat-icon class="text-teal-600 text-2xl mb-2">flag</mat-icon>
+              <span class="text-sm">Nouveau jalon</span>
+            </button>
+            <button routerLink="/risks" class="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50">
+              <mat-icon class="text-red-600 text-2xl mb-2">warning</mat-icon>
+              <span class="text-sm">Nouveau risque</span>
+            </button>
+            <button routerLink="/planning" class="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50">
+              <mat-icon class="text-purple-600 text-2xl mb-2">event</mat-icon>
+              <span class="text-sm">Voir Gantt</span>
             </button>
           </div>
-          
-          <div class="space-y-3">
-            <div *ngFor="let milestone of upcomingMilestones" class="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-b-0">
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
-                  {{ milestone.title }}
-                </p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">
-                  {{ milestone.workstream }}
-                </p>
-              </div>
-              <div class="text-right">
-                <p class="text-xs font-medium text-gray-900 dark:text-white">
-                  {{ milestone.datePlanned | date:'dd/MM/yyyy' }}
-                </p>
-                <span class="inline-block px-2 py-1 text-xs rounded-full"
-                      [ngClass]="{
-                        'bg-green-100 text-green-800': milestone.status === 'Atteint',
-                        'bg-yellow-100 text-yellow-800': milestone.status === 'Planifié',
-                        'bg-red-100 text-red-800': milestone.status === 'Retardé'
-                      }">
-                  {{ milestone.status }}
-                </span>
-              </div>
-            </div>
-            
-            <div *ngIf="upcomingMilestones.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
-              <mat-icon class="text-gray-400 text-4xl mb-2">flag</mat-icon>
-              <p>Aucun jalon à venir</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Critical Risks -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            Risques critiques
-          </h3>
-          <button 
-            routerLink="/risks"
-            class="text-blue-600 hover:text-blue-700 text-sm font-medium hover:underline transition-colors duration-200"
-          >
-            Voir tout
-          </button>
-        </div>
-        
-        <div class="space-y-3">
-          <div *ngFor="let risk of criticalRisks" class="flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 dark:text-white">
-                {{ risk.title }}
-              </p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">
-                {{ risk.workstream }} • {{ risk.owner }}
-              </p>
-            </div>
-            <div class="flex items-center space-x-3">
-              <div class="text-center">
-                <p class="text-xs text-gray-500 dark:text-gray-400">Criticité</p>
-                <span class="text-sm font-bold text-red-600">{{ risk.criticality }}</span>
-              </div>
-              <span class="inline-block px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">
-                {{ risk.status }}
-              </span>
-            </div>
-          </div>
-          
-          <div *ngIf="criticalRisks.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
-            <mat-icon class="text-gray-400 text-4xl mb-2">security</mat-icon>
-            <p>Aucun risque critique</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Actions rapides
-        </h3>
-        
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button 
-            routerLink="/tasks" 
-            class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <mat-icon class="text-blue-600 text-2xl mb-2">add_task</mat-icon>
-            <span class="text-sm font-medium text-gray-700">Nouvelle tâche</span>
-          </button>
-          
-          <button 
-            routerLink="/milestones" 
-            class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-teal-300 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500"
-          >
-            <mat-icon class="text-teal-600 text-2xl mb-2">flag</mat-icon>
-            <span class="text-sm font-medium text-gray-700">Nouveau jalon</span>
-          </button>
-          
-          <button 
-            routerLink="/risks" 
-            class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-red-300 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500"
-          >
-            <mat-icon class="text-red-600 text-2xl mb-2">warning</mat-icon>
-            <span class="text-sm font-medium text-gray-700">Nouveau risque</span>
-          </button>
-          
-          <button 
-            routerLink="/reports" 
-            class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-purple-300 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          >
-            <mat-icon class="text-purple-600 text-2xl mb-2">assessment</mat-icon>
-            <span class="text-sm font-medium text-gray-700">Générer rapport</span>
-          </button>
         </div>
       </div>
     </div>
   `
 })
 export class DashboardComponent implements OnInit {
-  stats: ProjectStats | null = null;
+  stats: any = {
+    totalTasks: 0,
+    completedTasks: 0,
+    overdueTasks: 0,
+    totalMilestones: 0,
+    achievedMilestones: 0,
+    totalRisks: 0,
+    criticalRisks: 0,
+    averageProgress: 0
+  };
+  
   recentTasks: Task[] = [];
   upcomingMilestones: Milestone[] = [];
   criticalRisks: Risk[] = [];
+  
+  tasksByWorkstream: { name: string; count: number; color: string }[] = [];
+  tasksByStatus: { name: string; count: number; percentage: number }[] = [];
+  risksBySeverity: { name: string; count: number }[] = [];
+  progressByPhase: { name: string; progress: number }[] = [];
+  
+  isLoading = false;
 
   constructor(private apiService: ApiService) {}
 
@@ -308,37 +171,61 @@ export class DashboardComponent implements OnInit {
   }
 
   private async loadDashboardData() {
+    this.isLoading = true;
+
     try {
-      // Load project statistics
-      const statsResponse = await this.apiService.getProjectStats().toPromise();
-      if (statsResponse?.success) {
-        this.stats = statsResponse.data;
-      }
+      const [tasksResponse, milestonesResponse, risksResponse] = await Promise.all([
+        this.apiService.getTasks({}, { field: 'wbs', direction: 'asc' }, 1, 1000).toPromise(),
+        this.apiService.getMilestones().toPromise(),
+        this.apiService.getRisks().toPromise()
+      ]);
 
-      // Load recent tasks (first 5)
-      const tasksResponse = await this.apiService.getTasks(undefined, { field: 'updatedAt', direction: 'desc' }, 1, 5).toPromise();
-      if (tasksResponse) {
-        this.recentTasks = tasksResponse.data;
-      }
+      const tasks = tasksResponse?.data || [];
+      const milestones = milestonesResponse?.data || [];
+      const risks = risksResponse?.data || [];
 
-      // Load upcoming milestones
-      const milestonesResponse = await this.apiService.getMilestones().toPromise();
-      if (milestonesResponse?.success) {
-        this.upcomingMilestones = milestonesResponse.data
-          .filter(m => m.status === 'Planifié')
-          .sort((a, b) => new Date(a.datePlanned).getTime() - new Date(b.datePlanned).getTime())
-          .slice(0, 5);
-      }
+      this.calculateStats(tasks, milestones, risks);
+      
+      this.recentTasks = tasks
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+        .slice(0, 5);
 
-      // Load critical risks
-      const risksResponse = await this.apiService.getRisks().toPromise();
-      if (risksResponse?.success) {
-        this.criticalRisks = risksResponse.data
-          .filter(r => r.criticality >= 16) // High criticality threshold
-          .slice(0, 5);
-      }
+      this.upcomingMilestones = milestones
+        .filter(m => m.status === 'Planifié' || m.status === 'Retardé')
+        .sort((a, b) => new Date(a.datePlanned).getTime() - new Date(b.datePlanned).getTime())
+        .slice(0, 5);
+
+      this.criticalRisks = risks
+        .filter(r => r.criticality >= 15)
+        .sort((a, b) => b.criticality - a.criticality)
+        .slice(0, 5);
+
+      this.isLoading = false;
     } catch (error) {
       console.error('Error loading dashboard data:', error);
+      this.isLoading = false;
+    }
+  }
+
+  private calculateStats(tasks: Task[], milestones: Milestone[], risks: Risk[]) {
+    this.stats.totalTasks = tasks.length;
+    this.stats.completedTasks = tasks.filter(t => t.status === 'Terminé').length;
+    
+    const today = new Date();
+    this.stats.overdueTasks = tasks.filter(t => 
+      t.status !== 'Terminé' && 
+      new Date(t.endPlanned) < today
+    ).length;
+
+    this.stats.totalMilestones = milestones.length;
+    this.stats.achievedMilestones = milestones.filter(m => m.status === 'Atteint').length;
+
+    this.stats.totalRisks = risks.length;
+    this.stats.criticalRisks = risks.filter(r => r.criticality >= 15).length;
+
+    if (tasks.length > 0) {
+      const totalProgress = tasks.reduce((sum, task) => sum + task.progress, 0);
+      this.stats.averageProgress = Math.round(totalProgress / tasks.length);
     }
   }
 }

@@ -27,6 +27,8 @@ export class PlanningComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('gantt_here', { static: true }) ganttContainer!: ElementRef;
 
   private tasks: Task[] = [];
+  private milestones: any[] = [];
+  private isLoading = false;
 
   constructor(private apiService: ApiService) {}
 
@@ -36,7 +38,7 @@ export class PlanningComponent implements OnInit, AfterViewInit, OnDestroy {
       tooltip: true
     });
     this.setupGantt();
-    this.loadTasks();
+    this.loadData();
   }
 
   ngAfterViewInit() {
@@ -162,9 +164,26 @@ export class PlanningComponent implements OnInit, AfterViewInit, OnDestroy {
     ];
   }
 
-  private loadTasks() {
-    // Simuler un appel API pour charger les tâches
-    this.tasks = this.getMockTasks();
+  private loadData() {
+    this.isLoading = true;
+
+    // Charger les tâches et les jalons en parallèle
+    Promise.all([
+      this.apiService.getTasks({}, { field: 'wbs', direction: 'asc' }, 1, 1000).toPromise(),
+      this.apiService.getMilestones().toPromise()
+    ]).then(([tasksResponse, milestonesResponse]) => {
+      this.tasks = tasksResponse?.data || [];
+      this.milestones = milestonesResponse?.data || [];
+      this.isLoading = false;
+      this.renderGantt();
+    }).catch(error => {
+      console.error('Error loading planning data:', error);
+      this.isLoading = false;
+      // Fallback to empty data if API fails
+      this.tasks = [];
+      this.milestones = [];
+      this.renderGantt();
+    });
   }
 
   private renderGantt() {
@@ -172,50 +191,51 @@ export class PlanningComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    const ganttData = this.tasks.map(task => {
-      const isMilestone = task.activity.toLowerCase().includes('milestone');
-      return {
-        id: task.id,
-        text: task.activity,
-        start_date: task.startPlanned,
-        end_date: task.endPlanned,
-        progress: task.progress / 100,
-        open: true, // Ouvrir les tâches par défaut
-        parent: task.dependencies || '0',
-        type: isMilestone 
-          ? gantt.config.types.milestone 
-          : (task.wbs.split('.').length > 1 ? gantt.config.types.task : gantt.config.types.project)
-      };
+    // Combiner les tâches et les jalons
+    const ganttTasks = this.tasks.map(task => ({
+      id: `task-${task.id}`,
+      text: task.activity,
+      start_date: task.startPlanned,
+      end_date: task.endPlanned,
+      progress: task.progress / 100,
+      open: true,
+      parent: task.dependencies ? `task-${task.dependencies}` : '0',
+      type: gantt.config.types.task,
+      responsible: task.responsible,
+      wbs: task.wbs,
+      workstream: task.workstream,
+      phase: task.phase
+    }));
+
+    const ganttMilestones = this.milestones.map(milestone => ({
+      id: `milestone-${milestone.id}`,
+      text: `🏁 ${milestone.title}`,
+      start_date: milestone.datePlanned,
+      end_date: milestone.datePlanned,
+      progress: milestone.status === 'Atteint' ? 1 : 0,
+      open: true,
+      parent: '0',
+      type: gantt.config.types.milestone,
+      responsible: milestone.workstream,
+      wbs: milestone.code,
+      workstream: milestone.workstream
+    }));
+
+    // Combiner et trier par date
+    const allItems = [...ganttTasks, ...ganttMilestones].sort((a, b) => {
+      return new Date(a.start_date).getTime() - new Date(b.start_date).getTime();
     });
 
+    // Créer les liens de dépendances
     const links = this.tasks
-      .filter(task => task.dependencies)
-      .map(task => ({
-        id: `link-${task.id}`,
-        source: parseInt(task.dependencies, 10),
-        target: task.id,
+      .filter(task => task.dependencies && task.dependencies.trim() !== '')
+      .map((task, index) => ({
+        id: `link-${index}`,
+        source: `task-${task.dependencies}`,
+        target: `task-${task.id}`,
         type: gantt.config.links.finish_to_start as string
       }));
 
-    gantt.parse({ data: ganttData, links });
-  }
-
-  private getMockTasks(): Task[] {
-    const now = new Date();
-    return [
-      // Phase 1: Planning
-      { id: 1, wbs: '1', workstream: 'Planning', phase: 'Planning', activity: 'Planning', asset: '', location: '', quantity: 0, unit: '', weight: 0, startPlanned: '2025-05-06', endPlanned: '2025-05-19', startActual: '', endActual: '', progress: 1, status: 'En cours', responsible: '', dependencies: '', comments: '', createdAt: now.toISOString(), updatedAt: now.toISOString() },
-      { id: 2, wbs: '1.1', workstream: 'Planning', phase: 'Planning', activity: 'Task P1', asset: '', location: '', quantity: 0, unit: '', weight: 0, startPlanned: '2025-05-06', endPlanned: '2025-05-12', startActual: '', endActual: '', progress: 1, status: 'Terminé', responsible: 'C. Miller', dependencies: '1', comments: '', createdAt: now.toISOString(), updatedAt: now.toISOString() },
-      { id: 3, wbs: '1.2', workstream: 'Planning', phase: 'Planning', activity: 'Task P2', asset: '', location: '', quantity: 0, unit: '', weight: 0, startPlanned: '2025-05-13', endPlanned: '2025-05-17', startActual: '', endActual: '', progress: 1, status: 'Terminé', responsible: 'T. Suarez', dependencies: '1', comments: '', createdAt: now.toISOString(), updatedAt: now.toISOString() },
-      { id: 4, wbs: '1.3', workstream: 'Planning', phase: 'Planning', activity: 'Task P3', asset: '', location: '', quantity: 0, unit: '', weight: 0, startPlanned: '2025-05-18', endPlanned: '2025-05-19', startActual: '', endActual: '', progress: 1, status: 'Terminé', responsible: 'C. Anthony', dependencies: '1', comments: '', createdAt: now.toISOString(), updatedAt: now.toISOString() },
-      { id: 5, wbs: '1.4', workstream: 'Planning', phase: 'Planning', activity: 'Milestone I', asset: '', location: '', quantity: 0, unit: '', weight: 0, startPlanned: '2025-05-19', endPlanned: '2025-05-19', startActual: '', endActual: '', progress: 1, status: 'Terminé', responsible: 'C. Miller', dependencies: '1', comments: '', createdAt: now.toISOString(), updatedAt: now.toISOString() },
-
-      // Phase 2: Implementation
-      { id: 6, wbs: '2', workstream: 'Implementation', phase: 'Implementation', activity: 'Implementation', asset: '', location: '', quantity: 0, unit: '', weight: 0, startPlanned: '2025-05-20', endPlanned: '2025-06-03', startActual: '', endActual: '', progress: 0.43, status: 'En cours', responsible: '', dependencies: '', comments: '', createdAt: now.toISOString(), updatedAt: now.toISOString() },
-      { id: 7, wbs: '2.1', workstream: 'Implementation', phase: 'Implementation', activity: 'Task I1', asset: '', location: '', quantity: 0, unit: '', weight: 0, startPlanned: '2025-05-20', endPlanned: '2025-05-24', startActual: '', endActual: '', progress: 1, status: 'Terminé', responsible: 'C. Anthony', dependencies: '6', comments: '', createdAt: now.toISOString(), updatedAt: now.toISOString() },
-      { id: 8, wbs: '2.2', workstream: 'Implementation', phase: 'Implementation', activity: 'Task I2', asset: '', location: '', quantity: 0, unit: '', weight: 0, startPlanned: '2025-05-25', endPlanned: '2025-05-31', startActual: '', endActual: '', progress: 0.35, status: 'En cours', responsible: 'T. Suarez', dependencies: '6', comments: '', createdAt: now.toISOString(), updatedAt: now.toISOString() },
-      { id: 9, wbs: '2.3', workstream: 'Implementation', phase: 'Implementation', activity: 'Task I3', asset: '', location: '', quantity: 0, unit: '', weight: 0, startPlanned: '2025-06-01', endPlanned: '2025-06-03', startActual: '', endActual: '', progress: 0, status: 'Planifié', responsible: 'N. Mason', dependencies: '6', comments: '', createdAt: now.toISOString(), updatedAt: now.toISOString() },
-      { id: 10, wbs: '2.4', workstream: 'Implementation', phase: 'Implementation', activity: 'Milestone II', asset: '', location: '', quantity: 0, unit: '', weight: 0, startPlanned: '2025-06-03', endPlanned: '2025-06-03', startActual: '', endActual: '', progress: 0, status: 'Planifié', responsible: 'C. Anthony', dependencies: '6', comments: '', createdAt: now.toISOString(), updatedAt: now.toISOString() },
-    ];
+    gantt.parse({ data: allItems, links });
   }
 }

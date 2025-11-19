@@ -582,7 +582,7 @@ export class MilestonesComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadMockMilestones();
+    this.loadMilestones(); // ← Utiliser la vraie API
     this.setupFilterSubscriptions();
   }
 
@@ -621,76 +621,23 @@ export class MilestonesComponent implements OnInit {
     });
   }
 
-  private loadMockMilestones() {
+  private loadMilestones() {
     this.isLoading = true;
 
-    // Simulate loading delay
-    setTimeout(() => {
-      this.milestones = this.generateMockMilestones();
-      this.totalCount = this.milestones.length;
-      this.calculateTotalPages();
-      this.applyFilters();
-      this.isLoading = false;
-    }, 1000);
-  }
-
-  private generateMockMilestones(): Milestone[] {
-    const now = new Date().toISOString();
-
-    return [
-      {
-        id: 1,
-        code: 'MS-001',
-        title: 'Finalisation conception panneaux solaires',
-        workstream: 'Énergie Renouvelable',
-        datePlanned: '2024-03-15',
-        dateActual: '2024-03-10',
-        status: 'Atteint',
-        comments: 'Conception terminée avec succès',
-        linkedTaskIds: [1],
-        createdAt: now,
-        updatedAt: now
+    this.apiService.getMilestones().subscribe({
+      next: (response) => {
+        this.milestones = response.data; // ✅ Extraire les données de response.data
+        this.totalCount = response.data.length; // ✅ Utiliser response.data.length
+        this.calculateTotalPages();
+        this.applyFilters();
+        this.isLoading = false;
       },
-      {
-        id: 2,
-        code: 'MS-002',
-        title: 'Livraison batteries lithium',
-        workstream: 'Stockage',
-        datePlanned: '2024-04-01',
-        dateActual: '',
-        status: 'Planifié',
-        comments: 'En attente du fournisseur',
-        linkedTaskIds: [2],
-        createdAt: now,
-        updatedAt: now
-      },
-      {
-        id: 3,
-        code: 'MS-003',
-        title: 'Installation transformateurs - Phase 1',
-        workstream: 'Distribution',
-        datePlanned: '2024-05-01',
-        dateActual: '',
-        status: 'Retardé',
-        comments: 'Retard dû aux permis',
-        linkedTaskIds: [3],
-        createdAt: now,
-        updatedAt: now
-      },
-      {
-        id: 4,
-        code: 'MS-004',
-        title: 'Test système Smart Grid',
-        workstream: 'Smart Grid',
-        datePlanned: '2024-05-15',
-        dateActual: '2024-05-10',
-        status: 'Atteint',
-        comments: 'Tests réussis, système opérationnel',
-        linkedTaskIds: [4],
-        createdAt: now,
-        updatedAt: now
+      error: (error) => {
+        console.error('Error loading milestones:', error);
+        this.isLoading = false;
+        // Afficher un message d'erreur à l'utilisateur
       }
-    ];
+    });
   }
 
   private applyFilters() {
@@ -829,7 +776,7 @@ export class MilestonesComponent implements OnInit {
       next: () => {
         this.isSaving = false;
         this.closeMilestoneDialog();
-        this.loadMockMilestones(); // Correction: utiliser loadMockMilestones au lieu de loadMilestones
+        this.loadMilestones(); // ✅ Utilise maintenant la vraie API
       },
       error: (error) => {
         console.error('Error saving milestone:', error);
@@ -866,13 +813,17 @@ export class MilestonesComponent implements OnInit {
 
     this.isDeleting = true;
 
-    // Simulate API call
-    setTimeout(() => {
-      this.milestones = this.milestones.filter(m => m.id !== this.milestoneToDelete!.id);
-      this.isDeleting = false;
-      this.closeDeleteDialog();
-      this.loadMockMilestones(); // Reload to apply filters
-    }, 1000);
+    this.apiService.deleteMilestone(this.milestoneToDelete.id).subscribe({
+      next: () => {
+        this.isDeleting = false;
+        this.closeDeleteDialog();
+        this.loadMilestones(); // ✅ Utilise maintenant la vraie API
+      },
+      error: (error) => {
+        console.error('Error deleting milestone:', error);
+        this.isDeleting = false;
+      }
+    });
   }
 
   // Alias for openMilestoneDialog
